@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RAHL XMD Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>RAHL XMD Connection Panel</h1>
+
+<div id="status">Waiting for QR...</div>
+
+<img id="qr" />
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io()
+
+    socket.on("qr", (src) => {
+        document.getElementById("qr").src = src
+        document.getElementById("status").innerText = "Scan QR Code"
+    })
+
+    socket.on("connected", () => {
+        document.getElementById("status").innerText = "Connected Successfully ✅"
+        document.getElementById("qr").style.display = "none"
+    })
+</script>
+
+</body>
+</html>
