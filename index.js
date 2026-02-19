@@ -1,3 +1,15 @@
+const express = require("express");
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get("/", (req, res) => {
+    res.send("🔥 RAHL XMD is running");
+});
+
+app.listen(PORT, () => {
+    console.log("Web server running on port " + PORT);
+});
+
 const P = require("pino");
 const chalk = require("chalk");
 const {
@@ -18,7 +30,7 @@ async function startBot() {
     const sock = makeWASocket({
         version,
         logger: P({ level: "silent" }),
-        printQRInTerminal: true,
+        printQRInTerminal: false,
         auth: {
             creds: state.creds,
             keys: makeCacheableSignalKeyStore(state.keys, P({ level: "silent" }))
@@ -27,6 +39,21 @@ async function startBot() {
     });
 
     sock.ev.on("creds.update", saveCreds);
+
+    // 🔥 PAIRING CODE LOGIN
+    if (!sock.authState?.creds?.registered) {
+        const phoneNumber = process.env.PAIR_NUMBER;
+        if (!phoneNumber) {
+            console.log("PAIR_NUMBER not set in environment variables!");
+        } else {
+            const code = await sock.requestPairingCode(phoneNumber);
+            console.log("=======================================");
+            console.log("PAIRING CODE:", code);
+            console.log("Go to WhatsApp → Linked Devices →");
+            console.log("Link with phone number and enter code");
+            console.log("=======================================");
+        }
+    }
 
     sock.ev.on("connection.update", (update) => {
         const { connection, lastDisconnect } = update;
